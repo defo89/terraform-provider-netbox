@@ -30,7 +30,7 @@ data "netbox_dcim_site" "site_test" {
 resource "netbox_ipam_vlan_group" "vlan_group_test" {
   name = "Test_VlanGroup"
   slug = "Test_VlanGroup"
-  site_id = data.netbox_dcim_sites.site_test.id
+  site_id = data.netbox_dcim_site.site_test.id
 }
 
 data "netbox_ipam_role" "vlan_role_production" {
@@ -48,7 +48,7 @@ resource "netbox_ipam_vlan" "vlan_test" {
   description = "VLAN created by terraform"
   vlan_group_id = netbox_ipam_vlan_group.vlan_group_test.id
   tenant_id = netbox_tenancy_tenant.tenant_test.id
-  role_id = data.netbox_ipam_roles.vlan_role_production.id
+  role_id = data.netbox_ipam_role.vlan_role_production.id
   tags = ["tag1"]
 }
 
@@ -57,7 +57,7 @@ resource "netbox_ipam_prefix" "prefix_test" {
   vlan_id = netbox_ipam_vlan.vlan_test.id
   description = "Prefix created by terraform"
   site_id = netbox_ipam_vlan_group.vlan_group_test.site_id
-  role_id = data.netbox_ipam_roles.vlan_role_production.id
+  role_id = data.netbox_ipam_role.vlan_role_production.id
   tags = ["tag1"]
   status = "Container"
 }
