@@ -1,15 +1,16 @@
 package netbox
 
 import (
+	"log"
 	"regexp"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	pkgerrors "github.com/pkg/errors"
-	netboxclient "github.com/smutel/go-netbox/netbox/client"
-	"github.com/smutel/go-netbox/netbox/client/tenancy"
-	"github.com/smutel/go-netbox/netbox/models"
+	netboxclient "github.com/netbox-community/go-netbox/netbox/client"
+	"github.com/netbox-community/go-netbox/netbox/client/tenancy"
+	"github.com/netbox-community/go-netbox/netbox/models"
 )
 
 func resourceNetboxTenancyTenant() *schema.Resource {
@@ -106,6 +107,10 @@ func resourceNetboxTenancyTenantCreate(d *schema.ResourceData,
 		CustomFields: cf,
 	}
 
+	log.Println("COUCOU")
+	log.Println(cf)
+	log.Println(tenantCustomFields)
+
 	if tenantGroupID != 0 {
 		newTenant.Group = &tenantGroupID
 	}
@@ -146,6 +151,9 @@ func resourceNetboxTenancyTenantRead(d *schema.ResourceData,
 			}
 
 			d.Set("custom_fields", convertAPIToCF(tenant.CustomFields))
+			log.Println("CACA")
+			log.Println(tenant.CustomFields)
+			log.Println(convertAPIToCF(tenant.CustomFields))
 			return nil
 		}
 	}

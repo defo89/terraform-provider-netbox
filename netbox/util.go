@@ -69,9 +69,15 @@ func convertCFToAPI(customFields []interface{}) (cf map[string]interface{},
 
 func convertAPIToCF(customFields interface{}) (cf []map[string]string) {
 	var cfAPI map[string]string
+	cfAPISize := 0
 
-	customFieldsAPI := make([]map[string]string,
-		len(customFields.(map[string]interface{})))
+	for _, v := range customFields.(map[string]interface{}) {
+		if v != nil {
+			cfAPISize++
+		}
+	}
+
+	customFieldsAPI := make([]map[string]string, cfAPISize)
 
 	i := 0
 	for k, v := range customFields.(map[string]interface{}) {
@@ -90,9 +96,9 @@ func convertAPIToCF(customFields interface{}) (cf []map[string]string) {
 				cfAPI["value"] = v.(string)
 				cfAPI["kind"] = "string"
 			}
+			customFieldsAPI[i] = cfAPI
+			i++
 		}
-		customFieldsAPI[i] = cfAPI
-		i++
 	}
 
 	return customFieldsAPI

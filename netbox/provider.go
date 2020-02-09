@@ -2,7 +2,7 @@ package netbox
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	netboxapi "github.com/smutel/go-netbox/netbox"
+	netboxapi "github.com/netbox-community/go-netbox/netbox"
 )
 
 // Provider exports the actual provider.

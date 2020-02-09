@@ -29,6 +29,14 @@
   name = "github.com/hashicorp/terraform-plugin-sdk"
   version = "1.2.0"
 
+[[constraint]]
+  name = "github.com/netbox-community/go-netbox"
+  version = "netbox_v2.4"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "0.9.1"
+
 [prune]
   go-tests = true
   unused-packages = true

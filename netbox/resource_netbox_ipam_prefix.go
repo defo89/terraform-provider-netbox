@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	pkgerrors "github.com/pkg/errors"
-	netboxclient "github.com/smutel/go-netbox/netbox/client"
-	"github.com/smutel/go-netbox/netbox/client/ipam"
-	"github.com/smutel/go-netbox/netbox/models"
+	netboxclient "github.com/netbox-community/go-netbox/netbox/client"
+	"github.com/netbox-community/go-netbox/netbox/client/ipam"
+	"github.com/netbox-community/go-netbox/netbox/models"
 )
 
 var prefixStatusToInt = map[string]int{
