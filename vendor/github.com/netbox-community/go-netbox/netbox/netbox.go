@@ -1,4 +1,4 @@
-// Copyright 2018 The go-netbox Authors.
+// Copyright 2020 The go-netbox Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,16 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
 
 package netbox
 
 import (
 	"fmt"
 
-	"github.com/go-openapi/strfmt"
 	runtimeclient "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 
-	"github.com/digitalocean/go-netbox/netbox/client"
+	"github.com/netbox-community/go-netbox/netbox/client"
 )
 
 // NewNetboxAt returns a client which will connect to the given
