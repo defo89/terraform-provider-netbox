@@ -7,25 +7,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	pkgerrors "github.com/pkg/errors"
 	netboxclient "github.com/netbox-community/go-netbox/netbox/client"
 	"github.com/netbox-community/go-netbox/netbox/client/ipam"
 	"github.com/netbox-community/go-netbox/netbox/models"
+	pkgerrors "github.com/pkg/errors"
 )
-
-var prefixStatusToInt = map[string]int{
-	"Container":  0,
-	"Active":     1,
-	"Reserved":   2,
-	"Deprecated": 3,
-}
-
-var prefixIntToStatus = map[int]string{
-	0: "Container",
-	1: "Active",
-	2: "Reserved",
-	3: "Deprecated",
-}
 
 func resourceNetboxIpamPrefix() *schema.Resource {
 	return &schema.Resource{
@@ -45,8 +31,8 @@ func resourceNetboxIpamPrefix() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "Active",
-				ValidateFunc: validation.StringInSlice([]string{"Container", "Active",
-					"Reserved", "Deprecated"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"container", "active",
+					"reserved", "deprecated"}, false),
 			},
 			"vrf_id": {
 				Type:     schema.TypeInt,
@@ -117,7 +103,7 @@ func resourceNetboxIpamPrefixCreate(d *schema.ResourceData,
 	client := m.(*netboxclient.NetBox)
 
 	prefixPrefix := d.Get("prefix").(string)
-	prefixStatus := int64(prefixStatusToInt[d.Get("status").(string)])
+	prefixStatus := d.Get("status").(string)
 	prefixVrfID := int64(d.Get("vrf_id").(int))
 	prefixRoleID := int64(d.Get("role_id").(int))
 	prefixDescription := d.Get("description").(string)
@@ -179,7 +165,7 @@ func resourceNetboxIpamPrefixRead(d *schema.ResourceData,
 	for _, prefix := range prefixs.Payload.Results {
 		if strconv.FormatInt(prefix.ID, 10) == d.Id() {
 			d.Set("prefix", prefix.Prefix)
-			d.Set("status", prefixIntToStatus[int(*prefix.Status.Value)])
+			d.Set("status", *prefix.Status.Value)
 			d.Set("description", prefix.Description)
 			d.Set("tags", prefix.Tags)
 			d.Set("is_pool", prefix.IsPool)
@@ -236,8 +222,7 @@ func resourceNetboxIpamPrefixUpdate(d *schema.ResourceData,
 	updatedParams.IsPool = d.Get("is_pool").(bool)
 
 	if d.HasChange("status") {
-		status := int64(prefixStatusToInt[d.Get("status").(string)])
-		updatedParams.Status = status
+		updatedParams.Status = d.Get("status").(string)
 	}
 
 	if d.HasChange("description") {

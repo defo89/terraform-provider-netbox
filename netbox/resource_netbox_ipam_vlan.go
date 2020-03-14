@@ -7,23 +7,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	pkgerrors "github.com/pkg/errors"
 	netboxclient "github.com/netbox-community/go-netbox/netbox/client"
 	"github.com/netbox-community/go-netbox/netbox/client/ipam"
 	"github.com/netbox-community/go-netbox/netbox/models"
+	pkgerrors "github.com/pkg/errors"
 )
-
-var vlanStatusToInt = map[string]int{
-	"Active":     1,
-	"Reserved":   2,
-	"Deprecated": 3,
-}
-
-var vlanIntToStatus = map[int]string{
-	1: "Active",
-	2: "Reserved",
-	3: "Deprecated",
-}
 
 func resourceNetboxIpamVlan() *schema.Resource {
 	return &schema.Resource{
@@ -46,9 +34,9 @@ func resourceNetboxIpamVlan() *schema.Resource {
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "Active",
-				ValidateFunc: validation.StringInSlice([]string{"Active", "Reserved",
-					"Deprecated"}, false),
+				Default:  "active",
+				ValidateFunc: validation.StringInSlice([]string{"active", "reserved",
+					"deprecated"}, false),
 			},
 			"site_id": {
 				Type:     schema.TypeInt,
@@ -111,7 +99,7 @@ func resourceNetboxIpamVlanCreate(d *schema.ResourceData,
 
 	vlanVid := int64(d.Get("vlan_id").(int))
 	vlanName := d.Get("name").(string)
-	vlanStatus := int64(vlanStatusToInt[d.Get("status").(string)])
+	vlanStatus := d.Get("status").(string)
 	vlanSiteID := int64(d.Get("site_id").(int))
 	vlanGroupID := int64(d.Get("vlan_group_id").(int))
 	vlanRoleID := int64(d.Get("role_id").(int))
@@ -166,7 +154,7 @@ func resourceNetboxIpamVlanRead(d *schema.ResourceData,
 	for _, vlan := range vlans.Payload.Results {
 		if strconv.FormatInt(vlan.ID, 10) == d.Id() {
 			d.Set("vlan_id", vlan.Vid)
-			d.Set("status", vlanIntToStatus[int(*vlan.Status.Value)])
+			d.Set("status", *vlan.Status.Value)
 			d.Set("name", vlan.Name)
 			d.Set("description", vlan.Description)
 			d.Set("tags", vlan.Tags)
@@ -218,8 +206,7 @@ func resourceNetboxIpamVlanUpdate(d *schema.ResourceData,
 	updatedParams.Tags = expandToStringSlice(vlanTags)
 
 	if d.HasChange("status") {
-		status := int64(vlanStatusToInt[d.Get("status").(string)])
-		updatedParams.Status = status
+		updatedParams.Status = d.Get("status").(string)
 	}
 
 	if d.HasChange("description") {
