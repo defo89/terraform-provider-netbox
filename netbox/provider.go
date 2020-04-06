@@ -1,9 +1,16 @@
 package netbox
 
 import (
+	"fmt"
+
+	runtimeclient "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	netboxapi "github.com/netbox-community/go-netbox/netbox"
+	"github.com/netbox-community/go-netbox/netbox/client"
 )
+
+const authHeaderName = "Authorization"
+const authHeaderFormat = "Token %v"
 
 // Provider exports the actual provider.
 func Provider() *schema.Provider {
@@ -45,5 +52,7 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	url := d.Get("url").(string)
 	token := d.Get("token").(string)
 
-	return netboxapi.NewNetboxWithAPIKey(url, token), nil
+	t := runtimeclient.New(url, client.DefaultBasePath, client.DefaultSchemes)
+	t.DefaultAuthentication = runtimeclient.APIKeyAuth(authHeaderName, "header", fmt.Sprintf(authHeaderFormat, token))
+	return client.New(t, strfmt.Default), nil
 }

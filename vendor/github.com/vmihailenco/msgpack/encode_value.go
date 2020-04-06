@@ -7,19 +7,20 @@ import (
 
 var valueEncoders []encoderFunc
 
+//nolint:gochecknoinits
 func init() {
 	valueEncoders = []encoderFunc{
 		reflect.Bool:          encodeBoolValue,
-		reflect.Int:           encodeInt64Value,
-		reflect.Int8:          encodeInt64Value,
-		reflect.Int16:         encodeInt64Value,
-		reflect.Int32:         encodeInt64Value,
-		reflect.Int64:         encodeInt64Value,
-		reflect.Uint:          encodeUint64Value,
-		reflect.Uint8:         encodeUint64Value,
-		reflect.Uint16:        encodeUint64Value,
-		reflect.Uint32:        encodeUint64Value,
-		reflect.Uint64:        encodeUint64Value,
+		reflect.Int:           encodeInt64CondValue,
+		reflect.Int8:          encodeInt8CondValue,
+		reflect.Int16:         encodeInt16CondValue,
+		reflect.Int32:         encodeInt32CondValue,
+		reflect.Int64:         encodeInt64CondValue,
+		reflect.Uint:          encodeUint64CondValue,
+		reflect.Uint8:         encodeUint8CondValue,
+		reflect.Uint16:        encodeUint16CondValue,
+		reflect.Uint32:        encodeUint32CondValue,
+		reflect.Uint64:        encodeUint64CondValue,
 		reflect.Float32:       encodeFloat32Value,
 		reflect.Float64:       encodeFloat64Value,
 		reflect.Complex64:     encodeUnsupportedValue,
@@ -38,10 +39,15 @@ func init() {
 }
 
 func getEncoder(typ reflect.Type) encoderFunc {
-	if encoder, ok := typEncMap[typ]; ok {
-		return encoder
+	if v, ok := typeEncMap.Load(typ); ok {
+		return v.(encoderFunc)
 	}
+	fn := _getEncoder(typ)
+	typeEncMap.Store(typ, fn)
+	return fn
+}
 
+func _getEncoder(typ reflect.Type) encoderFunc {
 	if typ.Implements(customEncoderType) {
 		return encodeCustomValue
 	}
@@ -70,8 +76,12 @@ func getEncoder(typ reflect.Type) encoderFunc {
 	case reflect.Ptr:
 		return ptrEncoderFunc(typ)
 	case reflect.Slice:
-		if typ.Elem().Kind() == reflect.Uint8 {
+		elem := typ.Elem()
+		if elem.Kind() == reflect.Uint8 {
 			return encodeByteSliceValue
+		}
+		if elem == stringType {
+			return encodeStringSliceValue
 		}
 	case reflect.Array:
 		if typ.Elem().Kind() == reflect.Uint8 {
