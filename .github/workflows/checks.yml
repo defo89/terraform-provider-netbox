@@ -22,6 +22,7 @@ jobs:
         uses: reviewdog/action-golangci-lint@v1.1.7
         with:
           github_token: ${{ secrets.github_token }}
+          golangci_lint_flags: "--config=.golangci.yml"
 
       - name: Setup env
         run: |
